@@ -1,0 +1,6 @@
+**/*.nextflow.log*
+**/*.nextflow.trace*
+**/work/
+.nextflow/
+**/.nextflow.log*
+**/.nextflow/history

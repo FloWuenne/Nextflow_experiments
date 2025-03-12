@@ -1,2 +1,2 @@
-# TheNextSolution
-This repository contains a collection of different problems and solutions in Nextflow.
+# Nextflow experiments
+This repository contains a collection of different problems, solutions and experiments in Nextflow.

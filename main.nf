@@ -110,50 +110,6 @@ process AWS_CLI_S3_HANDLING {
     """
 }
 
-process COMPARE_RESULTS {
-    tag "comparison"
-    publishDir params.outdir, mode: 'copy'
-    
-    input:
-    path native_output
-    path native_stats
-    path awscli_output
-    path awscli_stats
-    
-    output:
-    path "comparison_report.txt"
-    path "method_outputs"
-    
-    script:
-    """
-    echo "=== S3 FASTQ File Handling Comparison Report ===" > comparison_report.txt
-    echo "Generated on: \$(date)" >> comparison_report.txt
-    echo "" >> comparison_report.txt
-    
-    echo "## Native Nextflow S3 Handling Stats:" >> comparison_report.txt
-    cat ${native_stats} >> comparison_report.txt
-    echo "" >> comparison_report.txt
-    
-    echo "## AWS CLI String-based Handling Stats:" >> comparison_report.txt
-    cat ${awscli_stats} >> comparison_report.txt
-    echo "" >> comparison_report.txt
-    
-    echo "## Performance Notes:" >> comparison_report.txt
-    echo "- Native handling: Nextflow manages S3 credentials and caching automatically" >> comparison_report.txt
-    echo "- AWS CLI handling: Requires explicit AWS CLI commands and manual file management" >> comparison_report.txt
-    echo "- FastQC native S3: Tool attempts direct S3 access (may fall back to streaming)" >> comparison_report.txt
-    echo "- Native handling: Better integration with Nextflow's resume functionality" >> comparison_report.txt
-    echo "- AWS CLI handling: More explicit control over S3 operations and guaranteed local access" >> comparison_report.txt
-    
-    # Create output directories
-    mkdir -p method_outputs
-    cp ${native_output} method_outputs/
-    cp ${awscli_output} method_outputs/
-    
-    echo "Note: FastQC HTML/ZIP reports are published separately by individual processes" >> comparison_report.txt
-    """
-}
-
 workflow {
     // Parameters
     if (!params.s3_fastq_file) {
@@ -168,14 +124,7 @@ workflow {
     awscli_input_ch = Channel.of(s3_fastq_file_path)
     
     // Run all three processes
-    native_results = NATIVE_S3_HANDLING(native_input_ch)
-    awscli_results = AWS_CLI_S3_HANDLING(awscli_input_ch)
-    
-    // Compare results
-    COMPARE_RESULTS(
-        native_results[0],  // native_output.txt
-        native_results[1],  // native_stats.txt
-        awscli_results[0],  // awscli_output.txt
-        awscli_results[1]   // awscli_stats.txt
-    )
+    NATIVE_S3_HANDLING(native_input_ch)
+    AWS_CLI_S3_HANDLING(awscli_input_ch)
+
 }

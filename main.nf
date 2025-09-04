@@ -1,17 +1,44 @@
 #!/usr/bin/env nextflow
 
+params.input_file = null
+
 process DISK_INSPECTION {
     container 'ubuntu:22.04'
+    
+    input:
+    path input_file, stageAs: 'staged_input.dat'
     
     output:
     stdout
 
     script:
     """
+    if [ -f "staged_input.dat" ]; then
+        echo "=== Staged File Information ==="
+        echo "File: staged_input.dat"
+        echo "Size (bytes): \$(stat -c%s staged_input.dat)"
+        echo "Size (human readable): \$(du -h staged_input.dat | cut -f1)"
+        echo "File type: \$(file staged_input.dat)"
+        echo ""
+    fi
     echo "=== AWS EC2 Disk Inspection Report ==="
     echo "Instance: \$(hostname)"
     echo "Date: \$(date)"
     echo ""
+    
+    if [ -f "staged_input.dat" ]; then
+        echo "=== Input File Staging Test ==="
+        echo "Input file staged as: staged_input.dat"
+        echo "File size: \$(du -h staged_input.dat | cut -f1)"
+        echo "Staging location: \$(pwd)"
+        echo "Testing read speed of staged file..."
+        time dd if=staged_input.dat of=/dev/null bs=1M 2>&1 | grep -E 'copied|MB/s|GB/s|real|user|sys'
+        echo ""
+    else
+        echo "=== No Input File Provided ==="
+        echo "Use --input_file parameter to test file staging performance"
+        echo ""
+    fi
     
     echo "=== Mounted Disks Information ==="
     df -h
@@ -58,5 +85,6 @@ process DISK_INSPECTION {
 }
 
 workflow {
-    DISK_INSPECTION() | view
+    input_ch = params.input_file ? Channel.fromPath(params.input_file) : Channel.of(file('NO_FILE'))
+    DISK_INSPECTION(input_ch) | view
 }

@@ -30,7 +30,7 @@ process KRAKEN2 {
         --use-names \\
         --gzip-compressed \\
         --db ${kraken2_db} \\
-        --threads ${task.cpus} \\
+        --threads ${task.cpus - 2} \\
         --report ${sample_id}.kraken2.report.txt \\
         --output - \\
         ${memory_mapping_arg} \\

@@ -26,6 +26,10 @@ process KRAKEN2 {
         reads
     def memory_mapping_arg = memory_mapping ? '--memory-mapping' : ''
     """
+    export OMP_NUM_THREADS=${task.cpus - 2}
+    export OMP_PROC_BIND=close
+    export GOMP_CPU_AFFINITY="0-N"
+
     kraken2 \\
         --use-names \\
         --gzip-compressed \\

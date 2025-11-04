@@ -11,7 +11,8 @@ workflow {
     }
 
     // CSV format: sample_id,read1,read2 (read2 optional for single-end)
-    input_ch = channel
+    // Use .tap() to duplicate the channel for multiple processes
+    channel
         .fromPath(params.input)
         .splitCsv(header: true)
         .map { row ->
@@ -19,20 +20,21 @@ workflow {
             def reads = row.read2 ? [file(row.read1), file(row.read2)] : file(row.read1)
             tuple(sample_id, reads)
         }
+        .tap { input_ch_memorymapping }
+        .set { input_ch_standard }
 
-    kraken_db_ch = channel
-        .of(file(params.kraken2_db))
+    kraken_db_ch = file(params.kraken2_db)
 
     // Run KRAKEN2 with memory mapping enabled
     KRAKEN2_MEMORYMAPPING(
-        input_ch,
+        input_ch_memorymapping,
         kraken_db_ch,
         true
     )
 
     // Run KRAKEN2 without memory mapping
     KRAKEN2(
-        input_ch,
+        input_ch_standard,
         kraken_db_ch,
         false
     )

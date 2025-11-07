@@ -30,8 +30,6 @@ process KRAKEN2 {
     export OMP_PROC_BIND=close
     export GOMP_CPU_AFFINITY="0-N"
 
-    cat ${kraken2_db} > /dev/null
-
     kraken2 \\
         --use-names \\
         --gzip-compressed \\

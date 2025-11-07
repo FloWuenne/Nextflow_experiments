@@ -25,17 +25,21 @@ workflow {
 
     kraken_db_ch = file(params.kraken2_db)
 
-    // Run KRAKEN2 with memory mapping enabled
-    KRAKEN2_MEMORYMAPPING(
-        input_ch_memorymapping,
-        kraken_db_ch,
-        true
-    )
+    // Run KRAKEN2 with memory mapping enabled (if enabled)
+    if (params.run_with_memory_mapping) {
+        KRAKEN2_MEMORYMAPPING(
+            input_ch_memorymapping,
+            kraken_db_ch,
+            true
+        )
+    }
 
-    // Run KRAKEN2 without memory mapping
-    KRAKEN2(
-        input_ch_standard,
-        kraken_db_ch,
-        false
-    )
+    // Run KRAKEN2 without memory mapping (if enabled)
+    if (params.run_without_memory_mapping) {
+        KRAKEN2(
+            input_ch_standard,
+            kraken_db_ch,
+            false
+        )
+    }
 }

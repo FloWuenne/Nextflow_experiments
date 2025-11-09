@@ -31,15 +31,23 @@
           "default": "./results"
         },
         "kraken2_db": {
-          "type": "string"
+          "type": "string",
+          "description": "Location of kraken2 database."
         },
         "run_with_memory_mapping": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Run a process for Kraken2 with memory_mapping"
         },
         "run_without_memory_mapping": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Run a process for Kraken2 without memory mapping"
+        },
+        "set_omp_num_threads": {
+          "type": "boolean",
+          "default": true,
+          "description": "Should Nextflow limit the threads to OMP via task.cpus?"
         }
       }
     }

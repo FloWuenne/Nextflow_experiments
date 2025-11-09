@@ -30,7 +30,8 @@ workflow {
         KRAKEN2_MEMORYMAPPING(
             input_ch_memorymapping,
             kraken_db_ch,
-            true
+            true,
+            params.set_omp_num_threads
         )
     }
 
@@ -39,7 +40,8 @@ workflow {
         KRAKEN2(
             input_ch_standard,
             kraken_db_ch,
-            false
+            false,
+            params.set_omp_num_threads
         )
     }
 }

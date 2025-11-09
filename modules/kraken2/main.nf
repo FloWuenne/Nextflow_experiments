@@ -10,6 +10,7 @@ process KRAKEN2 {
     tuple val(sample_id), path(reads)
     path kraken2_db
     val memory_mapping
+    val use_omp_threads
 
     output:
     path('*.classified{.,_}*')     , optional:true, emit: classified_reads_fastq
@@ -25,8 +26,9 @@ process KRAKEN2 {
         "--paired ${reads[0]} ${reads[1]}" :
         reads
     def memory_mapping_arg = memory_mapping ? '--memory-mapping' : ''
+    def omp_threads = use_omp_threads ? "export OMP_NUM_THREADS=${task.cpus}" : ""
     """
-    export OMP_NUM_THREADS=${task.cpus}
+    ${omp_threads}
     export OMP_PROC_BIND=close
     export GOMP_CPU_AFFINITY="0-N"
 
